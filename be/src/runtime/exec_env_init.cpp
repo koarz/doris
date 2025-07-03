@@ -66,6 +66,7 @@
 #include "runtime/broker_mgr.h"
 #include "runtime/cache/result_cache.h"
 #include "runtime/client_cache.h"
+#include "runtime/compaction_profile.h"
 #include "runtime/exec_env.h"
 #include "runtime/external_scan_context_mgr.h"
 #include "runtime/fragment_mgr.h"
@@ -448,6 +449,7 @@ Status ExecEnv::_init_mem_env() {
     std::stringstream ss;
     // 1. init mem tracker
     _process_profile = ProcessProfile::create_global_instance();
+    _compaction_profile = CompactionProfile::create_global_instance();
     _heap_profiler = HeapProfiler::create_global_instance();
     init_mem_tracker();
     thread_context()->thread_mem_tracker_mgr->init();

@@ -123,6 +123,7 @@ class DummyLRUCache;
 class CacheManager;
 class IdManager;
 class ProcessProfile;
+class CompactionProfile;
 class HeapProfiler;
 class WalManager;
 class DNSCache;
@@ -343,6 +344,7 @@ public:
     CacheManager* get_cache_manager() { return _cache_manager; }
     IdManager* get_id_manager() { return _id_manager; }
     ProcessProfile* get_process_profile() { return _process_profile; }
+    CompactionProfile* get_compaction_profile() { return _compaction_profile; }
     HeapProfiler* get_heap_profiler() { return _heap_profiler; }
     segment_v2::InvertedIndexSearcherCache* get_inverted_index_searcher_cache() {
         return _inverted_index_searcher_cache;
@@ -494,6 +496,7 @@ private:
     CacheManager* _cache_manager = nullptr;
     IdManager* _id_manager = nullptr;
     ProcessProfile* _process_profile = nullptr;
+    CompactionProfile* _compaction_profile = nullptr;
     HeapProfiler* _heap_profiler = nullptr;
     segment_v2::InvertedIndexSearcherCache* _inverted_index_searcher_cache = nullptr;
     segment_v2::InvertedIndexQueryCache* _inverted_index_query_cache = nullptr;
