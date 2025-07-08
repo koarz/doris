@@ -137,7 +137,8 @@ void begin_rpc(std::string_view func_name, brpc::Controller* ctrl, const Request
 }
 
 template <class Response>
-void finish_rpc(std::string_view func_name, brpc::Controller* ctrl, Response* res) {
+void finish_rpc(std::string_view func_name, brpc::Controller* ctrl, Response* res,
+                std::string& instance_id) {
     if constexpr (std::is_same_v<Response, CommitTxnResponse>) {
         if (res->status().code() != MetaServiceCode::OK) {
             res->clear_table_ids();
@@ -151,15 +152,17 @@ void finish_rpc(std::string_view func_name, brpc::Controller* ctrl, Response* re
             res->clear_rowset_meta();
         }
         VLOG_DEBUG << "finish " << func_name << " from " << ctrl->remote_side()
-                   << " status=" << res->status().ShortDebugString();
+                   << " status=" << res->status().ShortDebugString() << " instance_id "
+                   << instance_id;
     } else if constexpr (std::is_same_v<Response, GetTabletStatsResponse>) {
         VLOG_DEBUG << "finish " << func_name << " from " << ctrl->remote_side()
                    << " status=" << res->status().ShortDebugString()
-                   << " tablet size: " << res->tablet_stats().size();
+                   << " tablet size: " << res->tablet_stats().size() << " instance_id "
+                   << instance_id;
     } else if constexpr (std::is_same_v<Response, GetVersionResponse> ||
                          std::is_same_v<Response, GetTabletResponse>) {
         VLOG_DEBUG << "finish " << func_name << " from " << ctrl->remote_side()
-                   << " response=" << res->ShortDebugString();
+                   << " response=" << res->ShortDebugString() << " instance_id " << instance_id;
     } else if constexpr (std::is_same_v<Response, GetDeleteBitmapResponse>) {
         if (res->status().code() != MetaServiceCode::OK) {
             res->clear_rowset_ids();
@@ -271,7 +274,7 @@ inline MetaServiceCode cast_as(TxnErrorCode code) {
     DORIS_CLOUD_DEFER {                                                                       \
         response->mutable_status()->set_code(code);                                           \
         response->mutable_status()->set_msg(msg);                                             \
-        finish_rpc(#func_name, ctrl, response);                                               \
+        finish_rpc(#func_name, ctrl, response, instance_id);                                  \
         closure_guard.reset(nullptr);                                                         \
         if (txn != nullptr) {                                                                 \
             stats.get_counter += txn->num_get_keys();                                         \
