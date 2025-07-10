@@ -382,6 +382,7 @@ Status retry_rpc(std::string_view op_name, const Request& req, Response* res,
     static_assert(std::is_base_of_v<::google::protobuf::Message, Request>);
     static_assert(std::is_base_of_v<::google::protobuf::Message, Response>);
 
+    static std::atomic_uint64_t log_id {};
     int retry_times = 0;
     uint32_t duration_ms = 0;
     std::string error_msg;
@@ -399,6 +400,7 @@ Status retry_rpc(std::string_view op_name, const Request& req, Response* res,
         } else {
             cntl.set_timeout_ms(config::meta_service_brpc_timeout_ms);
         }
+        cntl.set_log_id(++log_id);
         cntl.set_max_retry(kBrpcRetryTimes);
         res->Clear();
         int error_code = 0;

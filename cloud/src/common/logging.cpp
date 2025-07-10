@@ -17,6 +17,7 @@
 
 #include "logging.h"
 
+#include <brpc/controller.h>
 #include <bthread/bthread.h>
 #include <bthread/types.h>
 #include <glog/logging.h>
@@ -168,6 +169,17 @@ bool init_glog(const char* basename) {
     }
     inited = true;
     return true;
+}
+
+uint64_t get_log_id(google::protobuf::RpcController* controller) {
+    static std::atomic_uint64_t log_id {UINT64_MAX};
+    auto* ctrl = dynamic_cast<brpc::Controller*>(controller);
+    if (!ctrl->has_log_id()) {
+        // the log id from be is [1 - uint64_max], but fe have not the log id, so we need proved a id
+        // this id should not same as be id, so here log id are assigned from largest to smallest.
+        ctrl->set_log_id(log_id--);
+    }
+    return ctrl->log_id();
 }
 
 } // namespace doris::cloud
